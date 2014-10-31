@@ -44,31 +44,31 @@ you are that way inclined), containing the original directory
 structure and files, as well as the files that you have contributed.
 The two key things you will be adding are:
 
- - `src/<your_login>/mips_cpu.c` or `mips_cpu.cpp`
+ - `src/[your_login]/mips_cpu.c` or `mips_cpu.cpp`
  
- - `src/<your_login>/test_mips.c` or `test_mips.cpp`
+ - `src/[your_login]/test_mips.c` or `test_mips.cpp`
  
 The first part is the implementation of a mips simulator, and
 is essentially a library that implements the api found in
 `include/mips_cpu.h`. You can use C or C++, either is fine.
 If you want to split into multiple files, then feel free to do
-so - anything which matches the pattern `src/<your_login>/mips_cpu_*.c`
-or `src/<your_login>/mips_cpu_*.cpp` will also get compiled into
+so - anything which matches the pattern `src/[your_login]/mips_cpu_*.c`
+or `src/[your_login]/mips_cpu_*.cpp` will also get compiled into
 your library. 
 
 The second part is the test suite which will drive your
 simulator and make it do things. This is a C or C++ program
 (so it will have a main function), and should be either
-`src/<your_login>/test_mips.c` or `src/<your_login>/test_mips.cpp`.
+`src/[your_login]/test_mips.c` or `src/[your_login]/test_mips.cpp`.
 Again, if you want to split into multiple files, anything
-that matches the pattern `src/<your_login>/test_mips_*.c` or
-`src/<your_login>/test_mips_*.cpp` will get compiled into
+that matches the pattern `src/[your_login]/test_mips_*.c` or
+`src/[your_login]/test_mips_*.cpp` will get compiled into
 your program.
 
 You can also add your own private header files (generally
 a good idea), which should be part of the submitted zip file,
 but they don't need to follow any specific pattern. However,
-they should be completely located within the `src/<your_login>`
+they should be completely located within the `src/[your_login]`
 directory or a sub-directory of it. Note that your simulator
 and your test suite are two different components, so do not
 rely on the specific behaviour of _your_ simulator, it should
@@ -171,13 +171,13 @@ entirely quantitative and metric based.
 
 There are two submission deadlines, one soft, one hard:
 
-- Friday 24th October: deadline for formative (ungraded)
+- Friday 24th October 23:59: deadline for formative (ungraded)
   assessment. If you submit a version by this deadline, it
   will be put through a large subset of the assessment. The
   results (but not a grade), will be returned on Monday 27th.
   Submission is not required, but is obviously encouraged.
 
-- Friday 31st October: deadline for summative (graded)
+- Monday 3rd November 23:59: deadline for summative (graded)
   assessment. Whether or not you submitted for the previous
   deadline, everyone must submit for this deadline. This
   will be the part which results in the grade for this
@@ -207,13 +207,14 @@ Visual Studio 13. The target platform is any of Windows 7,
 Windows Vista, Cygwin 32, Cygwin 64, or Ubuntu 14.04.1.
 
 During compilation, the include directories will be set up
-to have the ``include'' directory (containing ``mips.h'')
-on the include path. The directory structure during compilation
+to have both the `include` directory (containing `mips.h`)
+and the `src/[your_login]` directory on the include path.
+The directory structure during compilation
 will be the same as that required during submission, so the
 relative location of things will stay the same.
 
 When running your test suite, the executable will be launched
-with its working directory as src/[your_login], so if you
+with its working directory as `src/[your_login]`, so if you
 wish to read files you can place them there (or in sub-directories).
 
 When your CPU simulator is executing, you can make no assumptions
@@ -268,7 +269,7 @@ AND   |  Bitwise and                              | 1  X
 ANDI  |  Bitwise and immediate                    | 2  XX       
 BEQ   |  Branch on equal                          | 3  XXX      
 BGEZ  |  Branch on greater than or equal to zero  | 3  XXX      
-BGEZAL|  Branch on greater than or equal to zero and link  | 4  XXXX
+BGEZAL|  Branch on non-negative (>=0) and link    | 4  XXXX     
 BGTZ  |  Branch on greater than zero              | 3  XXX      
 BLEZ  |  Branch on less than or equal to zero     | 3  XXX      
 BLTZ  |  Branch on less than zero                 | 3  XXX      
@@ -312,6 +313,10 @@ This is not quite an exhaustive list of MIPS-1 instructions
 (as was originally sort of implied). Some were deliberately left out
 for teaching purposes, while others are not as important and tend
 to penalise people for making the same mistakes in multiple places.
+Any instruction not covered in this list will not be tested
+as part of the assessment, and any implementation defined
+behaviour is fine (return an error, or actually implement
+the instruction).
 
 There are many instructions, but there is a lot of commonality
 between some instructions. Think about the underlying
@@ -385,7 +390,7 @@ it is to document implementation). Suggested reading order is:
 
 *Optional*: The comments follow the format for a well-known tool
 called [doxygen](http://www.stack.nl/~dimitri/doxygen/). If you
-apply doxygen to the file `doc/mips.doygen`, then it will generate
+apply doxygen to the file `doc/mips.doxygen`, then it will generate
 some nice html formatted API documentation for you.
 
 ### Check you understand MIPS
@@ -402,7 +407,7 @@ I think this is quite a nice break-down of the instructions,
 but be careful about the details:
 http://www.mrc.uidaho.edu/mrc/people/jff/digital/MIPSir.html
 
-# Get started
+### Get started
 
 You can either use the skeleton we started to develop in
 class, or start from scratch.
@@ -476,13 +481,103 @@ you'll need to cast to and from the types you want to read
 and write:
 
     uint32_t val;
-    mips_error err=mips_mem_read(mem, 12, 4, (uint32_t*)&val);
+    mips_error err=mips_mem_read(mem, 12, 4, (uint8_t*)&val);
     val=val+1;
     if(!err)
-        err=mips_mem_write(mem, 12, 4, (uint32_t*)&val);
+        err=mips_mem_write(mem, 12, 4, (uint8_t*)&val);
 
 This should (I haven't compiled it) increment the 32-bit value
 stored at byte address 12.
 
 But... watch out for endianess!
 
+I've put other examples in the documentation for mips_mem_write.
+
+### How do I implement mips_mem_provider?
+
+> How to define mips_mem_provider? I think that I need to set up an 
+> array of 8 bit integers, and have a mips_cpu_h pointing to my CPU in 
+> operation. My problem is that I am unsure how to choose an appropriate 
+> initial size for the array given that the create_ram function decides 
+> how large the array will be. Would I need to include the block size?
+
+An implementation of mips_mem_provider is defined for you in the
+`src/shared_mips_mem_ram.cpp` file, so you don't need to implement
+that, just add it into the compilation (e.g. add as an existing
+source file into eclipse).
+
+As for memory size, you should create a RAM that is big enough
+both to contain the instructions you want to test, and any
+data that you want to be able to read/write (e.g. by LW or SW)
+during those tests.
+
+### What is the block size?
+
+> What is the purpose of block size? As far as I can workout from the 
+> comments in the code the block size is the smallest transfer one is able 
+> to make, why does the limitation exist and is there a reason we should 
+> pick a certain size?
+
+The block size is equivalent to the number of bits in the address bus.
+I've updated the documentation on mips_mem_create_ram to explain
+this better.
+
+### What exactly goes on inside mips_cpu_step?
+
+> mips_error mips_cpu_step(mips_cpu_h state). Inside this function are 
+> we looking to extract 32-bits from memory at a time, determine whether 
+> it is an RIJ type, then pass on the appropriate segments of the 32 bit 
+> words to a function that completes the operation, then continue 
+> repeating the process until there is no longer anything left in memory?
+
+Yes, for everything up to "continue repeating the process".
+mips_cpu_step should fetch, decode, and execute just one
+instruction, update its state, then return back to the caller.
+
+If the caller wants to execute multiple instructions, they
+must call mips_cpu_step once for each instruction.
+
+### How is `mips_cpu_set_debug_level` supposed to be used?
+
+It is really down to you - it can do nothing if you prefer. I've
+updated the documentation for the function to give a
+better idea why it might be useful.
+
+## What is the point of `mips_cpu_get_pc`?
+
+> Why is the mips_cpu_get_pc function necessary, can't you
+> just get the value of the pc by doing state->pc, as you
+> did in the skeleton file? 
+
+You control the internals of the cpu state,
+so on the `mips_cpu.c` side, you can totally
+reach into `state->pc` and read it out. Or
+you can use `mips_cpu_get_pc`. Either is fine,
+because you are on the implementation side
+of the API.
+
+However, on the `mips_test.cpp` side you are not
+allowed to know how or where the pc is stored,
+so `mips_cpu_get_pc` exists in order to
+allow the pc to be read from that side. I have
+already written the code that will test your
+CPU, and there is no way I could know whether
+you will do:
+
+    struct mips_cpu_impl{
+      uint32_t pc;
+      uint32_t regs[32];
+    };
+
+or
+
+    struct mips_cpu_impl{
+      uint32_t theseAreMyRegs[32];
+      uint32_t thisIsMyPC;
+    };
+
+or something else.
+
+But I do know that I can call `mips_cpu_get_pc`, and
+no matter how or where you stored it I can find out
+what the current PC is.

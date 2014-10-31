@@ -5,6 +5,9 @@ LOGIN ?= eie2ugs
 CPPFLAGS += -W -Wall -g
 CPPFLAGS += -I include
 
+CFLAGS	 += -std=c99
+CXXFLAGS += -std=c++11
+
 # Force the inclusion of C++ standard libraries
 LDLIBS += -lstdc++
 
@@ -21,3 +24,8 @@ USER_CPU_SRCS = \
 USER_CPU_OBJECTS = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(USER_CPU_SRCS)))
 
 src/$(LOGIN)/test_mips : $(DEFAULT_OBJECTS) $(USER_CPU_OBJECTS)
+
+fragments/run_fibonacci : $(DEFAULT_OBJECTS) $(USER_CPU_OBJECTS)
+    
+fragments/run_addu : $(DEFAULT_OBJECTS) $(USER_CPU_OBJECTS)
+
