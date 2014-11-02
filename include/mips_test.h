@@ -144,7 +144,7 @@ void mips_test_end_suite();
     
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

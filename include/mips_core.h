@@ -61,7 +61,7 @@ typedef enum _mips_error{
 }mips_error;
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

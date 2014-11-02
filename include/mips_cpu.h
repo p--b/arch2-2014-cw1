@@ -219,7 +219,7 @@ void mips_cpu_free(mips_cpu_h state);
 */
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

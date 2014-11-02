@@ -219,7 +219,7 @@ mips_mem_h mips_mem_create_ram(
 
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif
